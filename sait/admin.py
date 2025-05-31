@@ -1,0 +1,225 @@
+from django.contrib import admin
+from django.utils.html import format_html
+from .models import (
+    User,
+    Amenity,
+    Location,
+    Room,
+    RoomAmenity,
+    Booking,
+    Favorite,
+    Image,
+    Review
+)
+
+# ------------------------------------------------------------
+# Inline-классы для административной панели
+# ------------------------------------------------------------
+
+class RoomAmenityInline(admin.TabularInline):
+    model = RoomAmenity
+    extra = 1
+    verbose_name = 'Удобство в комнате'
+    verbose_name_plural = 'Удобства в этой комнате'
+    raw_id_fields = ('amenity',)
+    autocomplete_fields = ('amenity',)
+
+
+class ImageInline(admin.TabularInline):
+    model = Image
+    extra = 1
+    readonly_fields = ('uploaded_at',)
+    fields = ('url', 'uploaded_at')
+    verbose_name = 'Изображение комнаты'
+    verbose_name_plural = 'Изображения комнат'
+
+
+class BookingInline(admin.TabularInline):
+    model = Booking
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+    fields = ('user', 'date', 'start_time', 'end_time', 'status', 'created_at', 'updated_at')
+    verbose_name = 'Бронирование'
+    verbose_name_plural = 'Бронирования'
+    raw_id_fields = ('user', 'room')
+    autocomplete_fields = ('user', 'room')
+
+
+class FavoriteInline(admin.TabularInline):
+    model = Favorite
+    extra = 0
+    readonly_fields = ('created_at',)
+    fields = ('user', 'created_at')
+    verbose_name = 'Добавлено в избранное'
+    verbose_name_plural = 'Избранное'
+    raw_id_fields = ('user',)
+    autocomplete_fields = ('user',)
+
+
+class ReviewInline(admin.TabularInline):
+    model = Review
+    extra = 0
+    readonly_fields = ('created_at',)
+    fields = ('user', 'rating', 'comment', 'created_at')
+    verbose_name = 'Отзыв'
+    verbose_name_plural = 'Отзывы'
+    raw_id_fields = ('user',)
+    autocomplete_fields = ('user',)
+
+
+# ------------------------------------------------------------
+# Admin для модели User
+# ------------------------------------------------------------
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'role', 'date_joined', 'is_active')
+    list_filter = ('role', 'is_active')
+    search_fields = ('username', 'email')
+    readonly_fields = ('date_joined', 'last_login')
+    list_display_links = ('username', 'email')
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Личные данные', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Права', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Важные даты', {'fields': ('last_login', 'date_joined')}),
+    )
+
+
+# ------------------------------------------------------------
+# Admin для модели Amenity
+# ------------------------------------------------------------
+@admin.register(Amenity)
+class AmenityAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    list_display_links = ('name',)
+    ordering = ('name',)
+
+
+# ------------------------------------------------------------
+# Admin для модели Location
+# ------------------------------------------------------------
+class RoomInline(admin.TabularInline):
+    model = Room
+    extra = 0
+    readonly_fields = ('created_at',)
+    fields = ('name', 'capacity', 'price_per_hour', 'created_at')
+    verbose_name = 'Комната'
+    verbose_name_plural = 'Комнаты'
+    raw_id_fields = ()
+    autocomplete_fields = ()
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'owner', 'created_at', 'room_count_display')
+    list_filter = ('owner',)
+    search_fields = ('name', 'address')
+    date_hierarchy = 'created_at'
+    readonly_fields = ('created_at',)
+    raw_id_fields = ('owner',)
+    autocomplete_fields = ('owner',)
+    inlines = (RoomInline,)  # ← теперь показываем inline-комнаты, а не RoomAmenityInline
+
+    @admin.display(description='Кол-во комнат')
+    def room_count_display(self, obj):
+        return obj.room_count
+
+
+# ------------------------------------------------------------
+# Admin для модели Room
+# ------------------------------------------------------------
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'capacity', 'price_per_hour', 'created_at', 'amenities_list')
+    list_filter = ('location', 'capacity', 'price_per_hour', 'amenities')
+    search_fields = ('name', 'description', 'location__name')
+    date_hierarchy = 'created_at'
+    readonly_fields = ('created_at',)
+    raw_id_fields = ('location',)
+    autocomplete_fields = ('location',)
+    filter_horizontal = ('amenities',)
+    inlines = (ImageInline, BookingInline, ReviewInline, FavoriteInline)
+
+    @admin.display(description='Удобства')
+    def amenities_list(self, obj):
+        return obj.amenities_list
+
+
+# ------------------------------------------------------------
+# Admin для модели RoomAmenity
+# ------------------------------------------------------------
+@admin.register(RoomAmenity)
+class RoomAmenityAdmin(admin.ModelAdmin):
+    list_display = ('room', 'amenity')
+    raw_id_fields = ('room', 'amenity')
+    search_fields = ('room__name', 'amenity__name')
+
+
+# ------------------------------------------------------------
+# Admin для модели Booking
+# ------------------------------------------------------------
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = ('room', 'user', 'date', 'time_range', 'status')
+    list_filter = ('status', 'date', 'room')
+    search_fields = ('room__name', 'user__username', 'status')
+    date_hierarchy = 'date'
+    readonly_fields = ('created_at', 'updated_at')
+    raw_id_fields = ('user', 'room')
+    autocomplete_fields = ('user', 'room')
+    list_display_links = ('room', 'user')
+
+    @admin.display(description='Интервал времени')
+    def time_range(self, obj):
+        return f"{obj.start_time.strftime('%H:%M')} – {obj.end_time.strftime('%H:%M')}"
+
+
+# ------------------------------------------------------------
+# Admin для модели Favorite
+# ------------------------------------------------------------
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'room', 'created_at')
+    list_filter = ('room',)
+    search_fields = ('user__username', 'room__name')
+    date_hierarchy = 'created_at'
+    raw_id_fields = ('user', 'room')
+    autocomplete_fields = ('user', 'room')
+    readonly_fields = ('created_at',)
+    list_display_links = ('user', 'room')
+
+
+# ------------------------------------------------------------
+# Admin для модели Image
+# ------------------------------------------------------------
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ('room', 'uploaded_at', 'image_preview')
+    list_filter = ('uploaded_at', 'room')
+    search_fields = ('room__name',)
+    date_hierarchy = 'uploaded_at'
+    raw_id_fields = ('room',)
+    autocomplete_fields = ('room',)
+    readonly_fields = ('uploaded_at',)
+
+    @admin.display(description='Превью изображения')
+    def image_preview(self, obj):
+        return format_html(
+            '<img src="{}" style="width: 80px; height: auto; border-radius: 4px;" />',
+            obj.url
+        )
+
+
+# ------------------------------------------------------------
+# Admin для модели Review
+# ------------------------------------------------------------
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'room', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at', 'room')
+    search_fields = ('user__username', 'room__name', 'comment')
+    date_hierarchy = 'created_at'
+    raw_id_fields = ('user', 'room')
+    autocomplete_fields = ('user', 'room')
+    readonly_fields = ('created_at',)
+    list_display_links = ('user', 'room')
