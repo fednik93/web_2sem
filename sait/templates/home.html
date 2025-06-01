@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Главная — Коворкинги{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Главная</h1>
+
+<!-- Виджет 1: Топ популярных помещений -->
+<section class="mb-5">
+  <h2>Топ популярных помещений</h2>
+  <div class="row">
+    {% for place in popular_places %}
+    <div class="col-md-4">
+      <div class="card mb-4">
+        {% if place.image %}
+        <img src="{{ place.image.url }}" class="card-img-top" alt="{{ place.name }}">
+        {% else %}
+        <img src="{% static 'sait/default_room.jpg' %}" class="card-img-top" alt="{{ place.name }}">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ place.name }}</h5>
+          <p class="card-text">Город: {{ place.city.name }}</p>
+          <p class="card-text">Бронирований: {{ place.num_bookings }}</p>
+          <a href="#" class="btn btn-primary">Перейти</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <a href="{% url 'places_list' %}">Посмотреть все помещения →</a>
+</section>
+
+<!-- Виджет 2: Ближайшие бронирования -->
+<section class="mb-5">
+  <h2>Ближайшие бронирования</h2>
+  <ul class="list-group">
+    {% for booking in upcoming_bookings %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <strong>{{ booking.place.name }}</strong> — {{ booking.date|date:"d.m.Y" }}
+      </div>
+      <span class="badge bg-secondary">{{ booking.user.username }}</span>
+    </li>
+    {% empty %}
+    <li class="list-group-item">Нет ближайших бронирований</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'booking_list' %}">Все бронирования →</a>
+</section>
+
+<!-- Виджет 3: Форма поиска -->
+<section class="mb-5">
+  <h2>Поиск доступных помещений</h2>
+  <form method="get" action="{% url 'search_results' %}" class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label for="city" class="form-label">Город</label>
+      <select id="city" name="city" class="form-select">
+        <option value="">— Не важно —</option>
+        {% for city in cities %}
+        <option value="{{ city.id }}">{{ city.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="date" class="form-label">Дата</label>
+      <input type="date" id="date" name="date" class="form-control">
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-success">Найти</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
