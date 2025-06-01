@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Все бронирования{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Все бронирования</h1>
+<ul class="list-group">
+  {% for booking in bookings %}
+  <li class="list-group-item">
+    {{ booking.user.username }}: <strong>{{ booking.room.name }}</strong> — {{ booking.date|date:"d.m.Y" }}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

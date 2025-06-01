@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Все помещения{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Все помещения</h1>
+<div class="row">
+  {% for room in rooms %}
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">{{ room.name }}</h5>
+        <p class="card-text">Площадка: {{ room.location.name }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

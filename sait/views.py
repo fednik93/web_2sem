@@ -26,3 +26,27 @@ def home(request):
         'upcoming_bookings': upcoming_bookings,
         'locations': locations,
     })
+def search_results(request):
+    location_id = request.GET.get('location')
+    date_str = request.GET.get('date')
+
+    rooms = Room.objects.filter(is_active=True)
+
+    if location_id:
+        rooms = rooms.filter(location__id=location_id)
+
+    if date_str:
+        booked_rooms = Booking.objects.filter(date=date_str).values_list('room_id', flat=True)
+        rooms = rooms.exclude(id__in=booked_rooms)
+
+    return render(request, 'search_results.html', {
+        'rooms': rooms
+    })
+
+def places_list(request):
+    rooms = Room.objects.filter(is_active=True).order_by('name')
+    return render(request, 'places_list.html', {'rooms': rooms})
+
+def booking_list(request):
+    bookings = Booking.objects.select_related('room').order_by('-date')
+    return render(request, 'booking_list.html', {'bookings': bookings})
