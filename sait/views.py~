@@ -18,11 +18,11 @@ def home(request):
         .order_by('date')[:5]
     )
 
-    # 3) Список всех площадок (Location) для селекта поиска:
-    locations = Location.objects.all()
+    # 3) Список городов (City) для селекта поиска:
+    cities = City.objects.all()
 
     return render(request, 'home.html', {
         'popular_places': popular_places,
         'upcoming_bookings': upcoming_bookings,
-        'locations': locations,
+        'cities': cities,
     })

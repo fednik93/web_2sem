@@ -20,7 +20,7 @@
         {% endif %}
         <div class="card-body">
           <h5 class="card-title">{{ place.name }}</h5>
-          <p class="card-text">Город: {{ place.city.name }}</p>
+          <p class="card-text">Площадка: {{ place.location.name }}</p>
           <p class="card-text">Бронирований: {{ place.num_bookings }}</p>
           <a href="#" class="btn btn-primary">Перейти</a>
         </div>
@@ -38,7 +38,7 @@
     {% for booking in upcoming_bookings %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
       <div>
-        <strong>{{ booking.place.name }}</strong> — {{ booking.date|date:"d.m.Y" }}
+        <strong>{{ booking.room.name }}</strong> — {{ booking.date|date:"d.m.Y" }}
       </div>
       <span class="badge bg-secondary">{{ booking.user.username }}</span>
     </li>
@@ -54,11 +54,11 @@
   <h2>Поиск доступных помещений</h2>
   <form method="get" action="{% url 'search_results' %}" class="row g-3 align-items-end">
     <div class="col-md-4">
-      <label for="city" class="form-label">Город</label>
-      <select id="city" name="city" class="form-select">
+      <label for="location" class="form-label">Площадка</label>
+      <select id="location" name="location" class="form-select">
         <option value="">— Не важно —</option>
-        {% for city in cities %}
-        <option value="{{ city.id }}">{{ city.name }}</option>
+        {% for loc in locations %}
+        <option value="{{ loc.id }}">{{ loc.name }}</option>
         {% endfor %}
       </select>
     </div>
