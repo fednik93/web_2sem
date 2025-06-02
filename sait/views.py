@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.db.models import Count
 from .models import Room, Booking, Location
@@ -50,3 +50,26 @@ def places_list(request):
 def booking_list(request):
     bookings = Booking.objects.select_related('room').order_by('-date')
     return render(request, 'booking_list.html', {'bookings': bookings})
+def create_booking(request):
+    if request.method == 'POST':
+        room_id = request.POST.get('room')
+        date_str = request.POST.get('date')
+        user = request.user  # или request.POST.get('user_name'), если нет User
+
+        # Проверка: нет ли уже брони на эту комнату/дату
+        if Booking.objects.filter(room_id=room_id, date=date_str).exists():
+            error = "Эта комната уже забронирована на выбранную дату."
+            return render(request, 'error.html', {'error': error})
+
+        # Получаем объект Room
+        try:
+            room = Room.objects.get(id=room_id)
+        except Room.DoesNotExist:
+            error = "Комнаты с таким ID не существует."
+            return render(request, 'error.html', {'error': error})
+
+        # Создаём бронь (используем user.username, если у вас User)
+        Booking.objects.create(room=room, date=date_str, user=user)
+        return redirect('booking_success')
+
+    return render(request, 'create_booking.html')

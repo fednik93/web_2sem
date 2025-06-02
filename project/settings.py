@@ -117,8 +117,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = [
+    BASE_DIR / 'sait' ,  # добавлено новое местоположение для CSS
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Директория, куда Django будет сохранять загруженные изображения
+MEDIA_ROOT = BASE_DIR / 'media'
+# URL, по которому они станут доступны
+MEDIA_URL = '/media/'

@@ -45,15 +45,7 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         # get_role_display() точно существует благодаря choices
-        return f"{self.username} ({self.get_role_display()})"
-
-    def get_role_display(self) -> str:
-        """
-        IDE иногда не «видит» динамический метод get_<field>_display() у CharField с choices.
-        Поэтому дублируем через super() + # type: ignore, чтобы подавить предупреждение.
-        """
-        return super().get_role_display()  # type: ignore[attr-defined]
-
+        return f"{self.username}"
 
 # ------------------------------
 # Удобство (Amenity) — справочник
@@ -144,10 +136,20 @@ class Room(models.Model):
         blank=True,
         verbose_name='Описание комнаты'
     )
+    rating = models.FloatField(
+        default=0.0,
+        verbose_name='Рейтинг')
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Активно')
+    image = models.ImageField(
+        upload_to='room_images/',
+        blank=True,
+        null=True)
     amenities = models.ManyToManyField(
         Amenity,
         through='RoomAmenity',
-        related_name='rooms',            # у Amenity появляется amenity.rooms
+        related_name='rooms',
         verbose_name='Удобства'
     )
     created_at = models.DateTimeField(
@@ -254,16 +256,7 @@ class Booking(models.Model):
         # get_status_display() обозначается ниже для IDE
         return (
             f"Бронь: {self.room.name} на {self.date} "
-            f"({self.start_time}–{self.end_time}) – {self.get_status_display()}"
         )
-
-    def get_status_display(self) -> str:
-        """
-        IDE не всегда видит динамический метод get_<field>_display(),
-        поэтому дублируем через super() с # type: ignore[attr-defined].
-        """
-        return super().get_status_display()  # type: ignore[attr-defined]
-
 
 # ------------------------------
 # Избранное (Favorite)

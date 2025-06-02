@@ -15,9 +15,9 @@
       <div class="card mb-4">
         {% if place.image %}
         <img src="{{ place.image.url }}" class="card-img-top" alt="{{ place.name }}">
-        {% else %}
-        <img src="{% static 'sait/default_room.jpg' %}" class="card-img-top" alt="{{ place.name }}">
-        {% endif %}
+       {% else %}
+         <img src="{% static 'sait/default_room.jpg' %}" class="card-img-top" alt="{{ place.name }}">
+       {% endif %}
         <div class="card-body">
           <h5 class="card-title">{{ place.name }}</h5>
           <p class="card-text">Площадка: {{ place.location.name }}</p>
