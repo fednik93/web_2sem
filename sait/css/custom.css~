@@ -1,0 +1,22 @@
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+.card-title {
+  font-weight: 600;
+}
+h1, h2 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.btn-primary {
+  border-radius: 4px;
+}
+/* Устанавливаем одинаковую высоту для всех img в карточках */
+.card-img-top {
+  width: 100%;
+  height: 200px;           /* любая высота, которая вам подходит */
+  object-fit: cover;       /* обрезает/масштабирует картинку, сохраняя центр */
+  border-top-left-radius: 8px;   /* скругление углов, если у .card 8px */
+  border-top-right-radius: 8px;
+}

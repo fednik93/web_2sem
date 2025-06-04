@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты поиска{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Результаты поиска</h1>
+<div class="row">
+  {% for room in rooms %}
+  <div class="col-md-4">
+    <div class="card mb-4">
+      {% if room.image %}
+      <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.name }}">
+      {% else %}
+      <img src="{% static 'sait/default_room.jpg' %}" class="card-img-top" alt="{{ room.name }}">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ room.name }}</h5>
+        <p class="card-text">Площадка: {{ room.location.name }}</p>
+        <p class="card-text">Рейтинг: {{ room.rating }}</p>
+        <a href="#" class="btn btn-primary">Подробнее</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>Ничего не найдено.</p>
+  {% endfor %}
+</div>
+{% endblock %}
